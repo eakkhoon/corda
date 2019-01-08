@@ -1,8 +1,10 @@
 package net.corda.node.services
 
 import co.paralleluniverse.fibers.Suspendable
+import net.corda.core.contracts.Command
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateRef
+import net.corda.core.contracts.TypeOnlyCommandData
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
@@ -14,19 +16,20 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.unwrap
 import net.corda.testing.common.internal.checkNotOnClasspath
-import net.corda.testing.core.*
+import net.corda.testing.core.ALICE_NAME
+import net.corda.testing.core.BOB_NAME
+import net.corda.testing.core.DUMMY_NOTARY_NAME
+import net.corda.testing.core.singleIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import net.corda.testing.node.internal.cordappsForPackages
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.Ignore
 import org.junit.Test
 import java.net.URL
 import java.net.URLClassLoader
 
-@Ignore("Temporarily ignored as it fails with: java.lang.SecurityException: sealing violation: can't seal package net.corda.nodeapi: already loaded")
 class AttachmentLoadingTests {
     private companion object {
         val isolatedJar: URL = AttachmentLoadingTests::class.java.getResource("/isolated.jar")
@@ -100,7 +103,7 @@ class AttachmentLoadingTests {
             val notary = serviceHub.networkMapCache.notaryIdentities[0]
             val stateAndRef = serviceHub.toStateAndRef<ContractState>(stateRef)
             val stx = serviceHub.signInitialTransaction(
-                    TransactionBuilder(notary).addInputState(stateAndRef).addCommand(dummyCommand(ourIdentity.owningKey))
+                    TransactionBuilder(notary).addInputState(stateAndRef).addCommand(Command<TypeOnlyCommandData>(DummyCommandData, ourIdentity.owningKey))
             )
             stx.verify(serviceHub, checkSufficientSignatures = false)
             val session = initiateFlow(otherSide)
@@ -122,4 +125,6 @@ class AttachmentLoadingTests {
             otherSide.send("OK")
         }
     }
+
+    object DummyCommandData : TypeOnlyCommandData()
 }
