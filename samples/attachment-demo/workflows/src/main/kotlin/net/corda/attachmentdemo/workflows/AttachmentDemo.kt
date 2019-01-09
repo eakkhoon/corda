@@ -5,7 +5,6 @@ import joptsimple.OptionParser
 import net.corda.attachmentdemo.contracts.ATTACHMENT_PROGRAM_ID
 import net.corda.attachmentdemo.contracts.AttachmentContract
 import net.corda.client.rpc.CordaRPCClient
-import net.corda.core.concurrent.CordaFuture
 import net.corda.core.crypto.SecureHash
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
@@ -19,9 +18,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.getOrThrow
-import net.corda.testing.core.DUMMY_BANK_B_NAME
-import net.corda.testing.core.DUMMY_NOTARY_NAME
-import net.corda.testing.node.internal.poll
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -83,11 +79,11 @@ fun sender(rpc: CordaRPCOps, numOfClearBytes: Int = 1024) { // default size 1K.
 
 private fun sender(rpc: CordaRPCOps, inputStream: InputStream, hash: SecureHash.SHA256, executor: ScheduledExecutorService) {
     // Get the identity key of the other side (the recipient).
-    val notaryFuture: CordaFuture<Party> = poll(executor, DUMMY_NOTARY_NAME.toString()) { rpc.wellKnownPartyFromX500Name(DUMMY_NOTARY_NAME) }
-    val otherSideFuture: CordaFuture<Party> = poll(executor, DUMMY_BANK_B_NAME.toString()) { rpc.wellKnownPartyFromX500Name(DUMMY_BANK_B_NAME) }
+//    val notaryFuture: CordaFuture<Party> = poll(executor, DUMMY_NOTARY_NAME.toString()) { rpc.wellKnownPartyFromX500Name(DUMMY_NOTARY_NAME) }
+//    val otherSideFuture: CordaFuture<Party> = poll(executor, DUMMY_BANK_B_NAME.toString()) { rpc.wellKnownPartyFromX500Name(DUMMY_BANK_B_NAME) }
     // TODO get rid of dependency on node driver
-//    val notaryName = rpc.partiesFromName("Notary", false).firstOrNull()?.name ?: throw IllegalArgumentException("Couldn't find notary party")
-//    val bankBName = rpc.partiesFromName("Bank B", false).firstOrNull()?.name ?: throw IllegalArgumentException("Couldn't find Bank B party")
+    val notaryParty = rpc.partiesFromName("Notary", false).firstOrNull() ?: throw IllegalArgumentException("Couldn't find notary party")
+    val bankBParty = rpc.partiesFromName("Bank B", false).firstOrNull() ?: throw IllegalArgumentException("Couldn't find Bank B party")
 //    val notaryFuture: CordaFuture<Party> = poll(executor, notaryName.toString()) { rpc.wellKnownPartyFromX500Name(notaryName) }
 //    val otherSideFuture: CordaFuture<Party> = poll(executor, bankBName.toString()) { rpc.wellKnownPartyFromX500Name(bankBName) }
     // Make sure we have the file in storage
@@ -99,7 +95,7 @@ private fun sender(rpc: CordaRPCOps, inputStream: InputStream, hash: SecureHash.
         require(rpc.attachmentExists(hash)) { "Attachment matching hash: $hash does not exist" }
     }
 
-    val flowHandle = rpc.startTrackedFlow(::AttachmentDemoFlow, otherSideFuture.get(), notaryFuture.get(), hash)
+    val flowHandle = rpc.startTrackedFlow(::AttachmentDemoFlow, bankBParty, notaryParty, hash)
     flowHandle.progress.subscribe(::println)
     val stx = flowHandle.returnValue.getOrThrow()
     println("Sent ${stx.id}")

@@ -6,9 +6,9 @@ dependencies {
     // The irs demo CorDapp depends upon Cash CorDapp features
     cordapp project(':finance:contracts')
     cordaCompile project(':core')
-//    cordaRuntime project(':node-api')
+    cordaRuntime project(':node-api')
 
-//    testCompile project(':node-driver')
+    testCompile project(':node-driver')
     testCompile "junit:junit:$junit_version"
 }
 

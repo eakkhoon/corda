@@ -22,18 +22,13 @@ configurations {
 }
 
 dependencies {
-    //TODO check
-//    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testCompile "junit:junit:$junit_version"
-
     // Corda integration dependencies
     cordaRuntime project(path: ":node:capsule", configuration: 'runtimeArtifacts')
-//    cordaRuntime project(path: ":webserver:webcapsule", configuration: 'runtimeArtifacts')
     cordaCompile project(':core')
     cordaCompile project(':webserver')
-//    cordaCompile project(':test-utils')
-    cordaCompile project(':node-driver')
     cordapp project(':samples:attachment-demo:contracts')
+    testCompile project(':node-driver')
+    testCompile "junit:junit:$junit_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
@@ -58,11 +53,3 @@ cordapp {
         licence "Open Source (Apache 2)"
     }
 }
-
-//jar {
-//    baseName 'corda-attachment-demo-workflows'
-//}
-//
-//publish {
-//    name jar.baseName
-//}

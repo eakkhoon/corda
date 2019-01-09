@@ -7,18 +7,13 @@ apply plugin: 'net.corda.plugins.cordformation'
 description 'Corda attachment demo'
 
 dependencies {
-//    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-//    testCompile "junit:junit:$junit_version"
-//
     // Corda integration dependencies
     cordaRuntime project(path: ":node:capsule", configuration: 'runtimeArtifacts')
     cordaRuntime project(path: ":webserver:webcapsule", configuration: 'runtimeArtifacts')
     cordaCompile project(':core')
     cordaCompile project(':node-driver')
-//    cordaCompile project(':webserver')
     cordapp project(':samples:attachment-demo:contracts')
-    // TODO fix workflows
-//    cordapp project(':samples:attachment-demo:workflows')
+    cordapp project(':samples:attachment-demo:workflows')
 }
 
 def nodeTask = tasks.getByPath(':node:capsule:assemble')
@@ -73,29 +68,19 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar', nodeTask, 
     }
 }
 
-//TODO test
 task runSender(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'net.corda.attachmentdemo.workflows.AttachmentDemoKt' // todo paths
+    main = 'net.corda.attachmentdemo.workflows.AttachmentDemoKt'
     args '--role'
     args 'SENDER'
 }
 
 task runRecipient(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'net.corda.attachmentdemo.workflows.AttachmentDemoKt' // todo paths
+    main = 'net.corda.attachmentdemo.workflows.AttachmentDemoKt'
     args '--role'
     args 'RECIPIENT'
 }
-
-////TODO
-//jar {
-//    manifest {
-//        attributes(
-//                'Automatic-Module-Name': 'net.corda.samples.demos.attachment' // todo paths
-//        )
-//    }
-//}
 
 cordapp {
     info {

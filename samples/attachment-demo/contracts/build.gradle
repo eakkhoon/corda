@@ -6,27 +6,9 @@ description 'Corda attachment demo - contracts'
 
 dependencies {
     // Note: 3rd party CorDapps should remember to include the relevant Finance CorDapp dependencies using `cordapp`
-    // cordapp project(':finance:workflows')
-    // cordapp project(':finance:contracts')
     cordaCompile project(':core')
 }
 
-//configurations {
-//    testArtifacts.extendsFrom testRuntime
-//}
-//
-//task testJar(type: Jar) {
-//    classifier "tests"
-//    from sourceSets.test.output
-//}
-
-jar {
-    baseName 'corda-attachment-demo-contracts'
-}
-
-//artifacts {
-//    testArtifacts testJar
-//}
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
     minimumPlatformVersion 1
@@ -37,8 +19,3 @@ cordapp {
         licence "Open Source (Apache 2)"
     }
 }
-
-////TODO
-//publish {
-//    name jar.baseName
-//}
