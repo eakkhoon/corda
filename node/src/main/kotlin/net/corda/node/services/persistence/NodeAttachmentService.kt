@@ -406,18 +406,25 @@ class NodeAttachmentService(
     }
 
     // Holds onto a signed and/or unsigned attachment (at least one or the other).
-    private data class AttachmentIds(val signed: AttachmentId?, val unsigned: AttachmentId?) {
+    private data class AttachmentIds(val signed: AttachmentId?, val unsigned: List<AttachmentId>?) {
         init {
             // One of them at least must exist.
-            check(signed != null || unsigned != null)
+            check(signed != null || (unsigned != null && unsigned.isNotEmpty()) )
         }
 
         fun toList(): List<AttachmentId> =
                 if (signed != null) {
-                    if (unsigned != null) {
-                        listOf(signed, unsigned)
+                    if (unsigned != null && unsigned.isNotEmpty()) {
+                        listOf(signed, unsigned.first())
                     } else listOf(signed)
-                } else listOf(unsigned!!)
+                } else listOf(unsigned!!.first()!!)
+
+        fun toListWithUnsigedDuplicates(): List<AttachmentId> =
+                if (signed != null) {
+                    if (unsigned != null && unsigned.isNotEmpty()) {
+                        listOf(signed) + unsigned
+                    } else listOf(signed)
+                } else unsigned!!
     }
 
     /**
@@ -452,10 +459,10 @@ class NodeAttachmentService(
     }
 
     private fun makeAttachmentIds(it: Map.Entry<Int, List<DBAttachment>>): Pair<Version, AttachmentIds> {
-        check(it.value.size <= 2)
-        val signed = it.value.filter { it.signers?.isNotEmpty() ?: false }.map { AttachmentId.parse(it.attId) }.singleOrNull()
-        val unsigned = it.value.filter { it.signers?.isEmpty() ?: true }.map { AttachmentId.parse(it.attId) }.singleOrNull()
-        return it.key to AttachmentIds(signed, unsigned)
+        val signed = it.value.filter { it.signers?.isNotEmpty() ?: false }.map { AttachmentId.parse(it.attId) }
+        check (signed.size <= 1)
+        val unsigned = it.value.filter { it.signers?.isEmpty() ?: true }.map { AttachmentId.parse(it.attId) }
+        return it.key to AttachmentIds(signed.singleOrNull(), unsigned)
     }
 
     override fun getContractAttachmentWithHighestContractVersion(contractClassName: String, minContractVersion: Int): AttachmentId? {
@@ -467,5 +474,10 @@ class NodeAttachmentService(
     override fun getContractAttachments(contractClassName: String): Set<AttachmentId> {
         val versions: NavigableMap<Version, AttachmentIds> = getContractAttachmentVersions(contractClassName)
         return versions.values.flatMap { it.toList() }.toSet()
+    }
+
+    override fun getContractAttachmentsWithUnsigedDuplicates(contractClassName: String): Set<AttachmentId> {
+        val versions: NavigableMap<Version, AttachmentIds> = getContractAttachmentVersions(contractClassName)
+        return versions.values.flatMap { it.toListWithUnsigedDuplicates() }.toSet()
     }
 }
