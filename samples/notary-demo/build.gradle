@@ -24,7 +24,7 @@ dependencies {
     cordapp project(':experimental:notary-raft')
     cordapp project(':experimental:notary-bft-smart')
     cordapp project(':samples:notary-demo:contracts')
-    cordapp project(':samples:notary-demo:workflows') //TODO solve issue here
+    cordapp project(':samples:notary-demo:workflows')
 }
 
 def nodeTask = tasks.getByPath(':node:capsule:assemble')
@@ -37,7 +37,7 @@ task deployNodesSingle(type: Cordform, dependsOn: ['jar', nodeTask, webTask]) {
     nodeDefaults {
         extraConfig = [h2Settings: [address: "localhost:0"]]
         cordapp project(':samples:notary-demo:contracts')
-//        cordapp project(':samples:notary-demo:workflows')
+        cordapp project(':samples:notary-demo:workflows')
     }
     node {
         name "O=Alice Corp,L=Madrid,C=ES"
@@ -64,7 +64,7 @@ task deployNodesCustom(type: Cordform, dependsOn: ['jar', nodeTask, webTask]) {
     nodeDefaults {
         extraConfig = [h2Settings: [address: "localhost:0"]]
         cordapp project(':samples:notary-demo:contracts')
-//        cordapp project(':samples:notary-demo:workflows')
+        cordapp project(':samples:notary-demo:workflows')
     }
     node {
         name "O=Alice Corp,L=Madrid,C=ES"
@@ -96,7 +96,7 @@ task deployNodesRaft(type: Cordform, dependsOn: ['jar', nodeTask, webTask]) {
         extraConfig = [h2Settings: [address: "localhost:0"]]
         cordapp project(':experimental:notary-raft')
         cordapp project(':samples:notary-demo:contracts')
-//        cordapp project(':samples:notary-demo:workflows')
+        cordapp project(':samples:notary-demo:workflows')
     }
     node {
         name "O=Alice Corp,L=Madrid,C=ES"
@@ -167,7 +167,7 @@ task deployNodesBFT(type: Cordform, dependsOn: ['jar', nodeTask, webTask]) {
         extraConfig = [h2Settings: [address: "localhost:0"]]
         cordapp project(':experimental:notary-bft-smart')
         cordapp project(':samples:notary-demo:contracts')
-//        cordapp project(':samples:notary-demo:workflows')
+        cordapp project(':samples:notary-demo:workflows')
     }
     node {
         name "O=Alice Corp,L=Madrid,C=ES"

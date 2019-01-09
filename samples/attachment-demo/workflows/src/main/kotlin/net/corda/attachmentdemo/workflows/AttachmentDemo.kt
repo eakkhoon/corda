@@ -85,6 +85,11 @@ private fun sender(rpc: CordaRPCOps, inputStream: InputStream, hash: SecureHash.
     // Get the identity key of the other side (the recipient).
     val notaryFuture: CordaFuture<Party> = poll(executor, DUMMY_NOTARY_NAME.toString()) { rpc.wellKnownPartyFromX500Name(DUMMY_NOTARY_NAME) }
     val otherSideFuture: CordaFuture<Party> = poll(executor, DUMMY_BANK_B_NAME.toString()) { rpc.wellKnownPartyFromX500Name(DUMMY_BANK_B_NAME) }
+    // TODO get rid of dependency on node driver
+//    val notaryName = rpc.partiesFromName("Notary", false).firstOrNull()?.name ?: throw IllegalArgumentException("Couldn't find notary party")
+//    val bankBName = rpc.partiesFromName("Bank B", false).firstOrNull()?.name ?: throw IllegalArgumentException("Couldn't find Bank B party")
+//    val notaryFuture: CordaFuture<Party> = poll(executor, notaryName.toString()) { rpc.wellKnownPartyFromX500Name(notaryName) }
+//    val otherSideFuture: CordaFuture<Party> = poll(executor, bankBName.toString()) { rpc.wellKnownPartyFromX500Name(bankBName) }
     // Make sure we have the file in storage
     if (!rpc.attachmentExists(hash)) {
         inputStream.use {

@@ -2,7 +2,10 @@ package net.corda.notarydemo
 
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.core.crypto.CompositeKey
+import net.corda.core.crypto.Crypto
 import net.corda.core.crypto.toStringShort
+import net.corda.core.identity.CordaX500Name
+import net.corda.core.identity.Party
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import net.corda.core.transactions.SignedTransaction
@@ -10,8 +13,6 @@ import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.getOrThrow
 import net.corda.notarydemo.flows.DummyIssueAndMove
 import net.corda.notarydemo.flows.RPCStartableNotaryFlowClient
-import net.corda.testing.core.BOB_NAME
-import net.corda.testing.core.TestIdentity
 import java.util.concurrent.Future
 
 fun main(args: Array<String>) {
@@ -30,7 +31,9 @@ private class NotaryDemoClientApi(val rpc: CordaRPCOps) {
     }
 
     /** A dummy identity. */
-    private val counterparty = TestIdentity(BOB_NAME).party
+    // TODO refactor, does it work at all?
+    private val BOB_NAME = CordaX500Name("Bob Plc", "Rome", "IT")
+    private val counterparty = Party(BOB_NAME, Crypto.generateKeyPair(Crypto.DEFAULT_SIGNATURE_SCHEME).public)
 
     /** Makes calls to the node rpc to start transaction notarisation. */
     fun notarise(count: Int) {
